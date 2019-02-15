@@ -4,6 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.alibaba.com/schema/stat http://www.alibaba.com/schema/stat.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <!-- 忽略掉不能处理的占位 -->
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name="locations">
             <list>
@@ -12,7 +13,7 @@
         </property>
     </bean>
 
-    <import resource="redis.xml" />
+    <!-- <import resource="redis.xml" /> -->
 
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="driverClassName" value="${db.driverClassName}" />
@@ -37,7 +38,7 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
 
-    <!-- tx -->
+    <!-- tx 事务 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
     </bean>
@@ -46,6 +47,7 @@
 
     <!-- druid -->
     <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 超过3000ms的SQL是慢SQL，需要人工处理 -->
         <property name="slowSqlMillis" value="3000" />
         <property name="logSlowSql" value="true" />
         <property name="mergeSql" value="true" />

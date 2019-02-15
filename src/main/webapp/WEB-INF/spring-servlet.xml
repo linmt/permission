@@ -10,34 +10,22 @@
     <!-- 启动注解驱动的spring mvc 功能 -->
     <mvc:annotation-driven/>
 
-    <mvc:interceptors>
-        <bean class="com.mmall.common.HttpInterceptor" />
-    </mvc:interceptors>
-
-    <!-- 启动包扫描功能 -->
+    <!-- 启动包扫描功能，dao相关的可以不扫描，因为是通过mybatis处理的 -->
     <context:component-scan base-package="com.mmall.controller" />
     <context:component-scan base-package="com.mmall.service" />
-
-    <mvc:resources location="/js/" mapping="/js/**"/>
-    <mvc:resources location="/css/" mapping="/css/**"/>
-    <mvc:resources location="/bootstrap3.3.5/" mapping="/bootstrap3.3.5/**"/>
-    <mvc:resources location="/assets/" mapping="/assets/**"/>
-    <mvc:resources location="/ztree/" mapping="/ztree/**"/>
-
-    <bean class="com.mmall.common.ApplicationContextHelper" lazy-init="false" />
 
     <!-- 把我们定义好的requestMapping的注解找到对应的方法 -->
     <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" />-->
 
-    <bean class="com.mmall.common.SpringExceptionResolver" />
-
+    <!-- 指定返回的数据格式，比如是返回一个json数据还是jsp页面 -->
     <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
 
+    <!-- 用于处理返回json数据的情况，指定了BeanNameViewResolver后，要配置 -->
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
 
+    <!-- 用于处理返回jsp数据的情况 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/" />
         <property name="suffix" value=".jsp" />
     </bean>
-
 </beans>

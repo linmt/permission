@@ -1,6 +1,6 @@
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
 
@@ -44,11 +44,16 @@
   </filter>
   <filter-mapping>
     <filter-name>encodingFilter</filter-name>
-    <!-- 视频开始用的是/ ？？？ -->
+    <!-- /只能匹配/login这种，而不能匹配/login.jsp这种 -->
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
   <!-- druid -->
+  <!-- 指定一个servlet处理druid的请求 -->
   <servlet>
     <servlet-name>DruidStatServlet</servlet-name>
     <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
@@ -63,12 +68,17 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>DruidStatServlet</servlet-name>
+    <!-- sys前缀作用：如果想对druid做拦截的时候，可以对sys下面的所有请求进行校验，单独使用druid会麻烦，比如说我必须先走sys登录才能执行druid -->
     <url-pattern>/sys/druid/*</url-pattern>
   </servlet-mapping>
   <filter>
     <filter-name>DruidWebStatFilter</filter-name>
     <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
     <init-param>
+      <!--
+      WebStatFilter下面有init方法，有public static final String PARAM_NAME_EXCLUSIONS = "exclusions";
+      就是这里的exclusions
+       -->
       <param-name>exclusions</param-name>
       <param-value>*.js,*.css,*.jpg,*.png,*.ico,*.gif,/sys/druid/*</param-value>
     </init-param>
@@ -77,37 +87,4 @@
     <filter-name>DruidWebStatFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <filter>
-    <filter-name>loginFilter</filter-name>
-    <filter-class>com.mmall.filter.LoginFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>loginFilter</filter-name>
-    <url-pattern>/sys/*</url-pattern>
-    <url-pattern>/admin/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>aclControlFilter</filter-name>
-    <filter-class>com.mmall.filter.AclControlFilter</filter-class>
-    <init-param>
-      <param-name>targetFilterLifecycle</param-name>
-      <param-value>true</param-value>
-    </init-param>
-    <init-param>
-      <param-name>exclusionUrls</param-name>
-      <param-value>/sys/user/noAuth.page,/login.page</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>aclControlFilter</filter-name>
-    <url-pattern>/sys/*</url-pattern>
-    <url-pattern>/admin/*</url-pattern>
-  </filter-mapping>
-
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
-
 </web-app>
