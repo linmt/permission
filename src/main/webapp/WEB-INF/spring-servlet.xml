@@ -28,4 +28,12 @@
         <property name="prefix" value="/WEB-INF/views/" />
         <property name="suffix" value=".jsp" />
     </bean>
+
+    <bean class="com.mmall.common.SpringExceptionResolver" />
+
+    <bean class="com.mmall.common.ApplicationContextHelper" lazy-init="false" />
+
+    <mvc:interceptors>
+        <bean class="com.mmall.common.HttpInterceptor" />
+    </mvc:interceptors>
 </beans>
