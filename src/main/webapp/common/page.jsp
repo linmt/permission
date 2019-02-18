@@ -38,6 +38,8 @@
 
     //请求的链接 行数 当前多少页  每页行数  当前页有多少条结果  这些值要放在哪个元素  回调函数
     function renderPage(url, total, pageNo, pageSize, currentSize, idElement, callback) {
+        //alert(url+"  "+total+"  "+pageNo+"  "+pageSize+"  "+currentSize);
+        //   /sys/user/page.json?deptId=1  3  1  10  3
         //当前最大的页数
         var maxPageNo = Math.ceil(total / pageSize);
         //拼接实际请求的URL
