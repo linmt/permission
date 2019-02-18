@@ -324,7 +324,7 @@
             var pageSize = $("#pageSize").val();
             var url = "/sys/user/page.json?deptId=" + deptId;
             //如果是空，则默认为1
-            var pageNo = $("#userPage .pageNo").val() || 1;
+            var pageNo = $("#userPage.pageNo").val() || 1;
             $.ajax({
                 url : url,
                 data: {

@@ -38,6 +38,7 @@
 
     //请求的链接 行数 当前多少页  每页行数  当前页有多少条结果  这些值要放在哪个元素  回调函数
     function renderPage(url, total, pageNo, pageSize, currentSize, idElement, callback) {
+        pageNo=parseInt(pageNo);
         //alert(url+"  "+total+"  "+pageNo+"  "+pageSize+"  "+currentSize);
         //   /sys/user/page.json?deptId=1  3  1  10  3
         //当前最大的页数
@@ -51,7 +52,7 @@
             total : total,
             pageNo : pageNo,
             maxPageNo : maxPageNo,
-            nextPageNo: pageNo >= maxPageNo ? maxPageNo : (pageNo + 1),
+            nextPageNo: pageNo >= maxPageNo ? maxPageNo : (pageNo+1),
             beforePageNo : pageNo == 1 ? 1 : (pageNo - 1),
             firstUrl : (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=1&pageSize=" + pageSize),
             beforeUrl: (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=" + (pageNo - 1) + "&pageSize=" + pageSize),
@@ -59,7 +60,8 @@
             lastUrl : (pageNo >= maxPageNo) ? '' : (url + paramStartChar + "pageNo=" + maxPageNo + "&pageSize=" + pageSize)
         };
         $("#" + idElement).html(Mustache.render(paginateTemplate, view));
-
+//        alert(view.pageNo+123);
+        //  /sys/user/page.json?deptId=2&pageNo=11&pageSize=10
         $(".page-action").click(function(e) {
             e.preventDefault();
             $("#" + idElement + " .pageNo").val($(this).attr("data-target"));

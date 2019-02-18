@@ -46,6 +46,8 @@ public class SysUserController {
     @RequestMapping("/page.json")
     @ResponseBody
     public JsonData page(@RequestParam("deptId") int deptId, PageQuery pageQuery) {
+        System.out.println("===========");
+        System.out.println(pageQuery.getPageNo()+"  "+pageQuery.getPageSize());
         PageResult<SysUser> result = sysUserService.getPageByDeptId(deptId, pageQuery);
         return JsonData.success(result);
     }
