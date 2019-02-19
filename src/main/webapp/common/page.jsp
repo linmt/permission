@@ -54,24 +54,28 @@
             maxPageNo : maxPageNo,
             nextPageNo: pageNo >= maxPageNo ? maxPageNo : (pageNo+1),
             beforePageNo : pageNo == 1 ? 1 : (pageNo - 1),
-            firstUrl : (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=1&pageSize=" + pageSize),
-            beforeUrl: (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=" + (pageNo - 1) + "&pageSize=" + pageSize),
-            nextUrl : (pageNo >= maxPageNo) ? '' : (url + paramStartChar + "pageNo=" + (pageNo + 1) + "&pageSize=" + pageSize),
-            lastUrl : (pageNo >= maxPageNo) ? '' : (url + paramStartChar + "pageNo=" + maxPageNo + "&pageSize=" + pageSize)
+//            firstUrl : (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=1&pageSize=" + pageSize),
+//            beforeUrl: (pageNo == 1) ? '' : (url + paramStartChar + "pageNo=" + (pageNo - 1) + "&pageSize=" + pageSize),
+//            nextUrl : (pageNo >= maxPageNo) ? '' : (url + paramStartChar + "pageNo=" + (pageNo + 1) + "&pageSize=" + pageSize),
+//            lastUrl : (pageNo >= maxPageNo) ? '' : (url + paramStartChar + "pageNo=" + maxPageNo + "&pageSize=" + pageSize)
+            firstUrl : (url.indexOf('pageNo=')<0) ? (url + paramStartChar + "pageNo=1&pageSize=" + pageSize) : (url.replace(/pageNo=\d+/g,'pageNo=1').replace(/pageSize=\d+/g,'pageSize='+pageSize)),
+            beforeUrl: (pageNo == 1) ? '' : (url.replace(/pageNo=\d+/g,'pageNo='+(pageNo - 1)).replace(/pageSize=\d+/g,'pageSize='+pageSize)),
+            nextUrl : (pageNo >= maxPageNo) ? '' : ((url.indexOf('pageNo=')<0) ?(url + paramStartChar + "pageNo=" + (pageNo + 1) + "&pageSize=" + pageSize):(url.replace(/pageNo=\d+/g,'pageNo='+(pageNo + 1)).replace(/pageSize=\d+/g,'pageSize='+pageSize))),
+            lastUrl : (pageNo >= maxPageNo) ? '' : ((url.indexOf('pageNo=')<0) ?(url + paramStartChar + "pageNo=" + maxPageNo + "&pageSize=" + pageSize):(url.replace(/pageNo=\d+/g,'pageNo='+maxPageNo).replace(/pageSize=\d+/g,'pageSize='+pageSize)))
         };
         $("#" + idElement).html(Mustache.render(paginateTemplate, view));
 //        alert(view.pageNo+123);
         //  /sys/user/page.json?deptId=2&pageNo=11&pageSize=10
         $(".page-action").click(function(e) {
             e.preventDefault();
-            $("#" + idElement + " .pageNo").val($(this).attr("data-target"));
+            $("#" + idElement + ".pageNo").val($(this).attr("data-target"));
             var targetUrl  = $(this).attr("data-url");
             if(targetUrl != '') {
                 $.ajax({
                     url : targetUrl,
                     success: function (result) {
                         if (callback) {
-                            callback(result, url);
+                            callback(result, targetUrl);
                         }
                     }
                 })

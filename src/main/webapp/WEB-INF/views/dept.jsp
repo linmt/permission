@@ -317,6 +317,7 @@
             currentDept.addClass("btn-yellow");
             currentDept.addClass("no-hover");
             lastClickDeptId = deptId;
+//            $("#userPage.pageNo").val(1);
             loadUserList(deptId);
         }
 
@@ -372,7 +373,14 @@
                 }
                 //渲染分页信息
                 var pageSize = $("#pageSize").val();
-                var pageNo = $("#userPage .pageNo").val() || 1;
+//                var pageNo = $("#userPage.pageNo").val() || 1;
+                var pageNo;
+                if(url.indexOf('pageNo=')<0){
+                    pageNo=1;
+                }else {
+                    var strurl=url.substr(url.indexOf('pageNo='));
+                    pageNo=strurl.substring(7,strurl.indexOf('&'));
+                }
                 renderPage(url, result.data.total, pageNo, pageSize, result.data.total > 0 ? result.data.data.length : 0, "userPage", renderUserListAndPage);
             } else {
                 showMessage("获取部门下用户列表", result.msg, false);

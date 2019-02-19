@@ -2,9 +2,11 @@ package com.mmall.beans;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Min;
 
+@ToString
 public class PageQuery {
 
     @Getter
