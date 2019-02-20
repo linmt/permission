@@ -317,74 +317,9 @@
             currentDept.addClass("btn-yellow");
             currentDept.addClass("no-hover");
             lastClickDeptId = deptId;
-//            $("#userPage.pageNo").val(1);
+            //我自己加的，解决点击一个部门，在选择下一页，即第2页之后，再点击其他部门，显示页数不是1的情况
+            $("#userPage .pageNo").val(1);
             loadUserList(deptId);
-        }
-
-        function loadUserList(deptId) {
-            var pageSize = $("#pageSize").val();
-            var url = "/sys/user/page.json?deptId=" + deptId;
-            //如果是空，则默认为1
-            var pageNo = $("#userPage.pageNo").val() || 1;
-            $.ajax({
-                url : url,
-                data: {
-                    pageSize: pageSize,
-                    pageNo: pageNo
-                },
-                success: function (result) {
-                    renderUserListAndPage(result, url);
-                }
-            })
-        }
-
-        function renderUserListAndPage(result, url) {
-            if (result.ret) {
-                if (result.data.total > 0){
-                    var rendered = Mustache.render(userListTemplate, {
-                        //一般的返回结果是result.data，第二个data是PageResult这个类中的变量
-                        userList: result.data.data,
-                        "showDeptName": function() {
-                            return deptMap[this.deptId].name;
-                        },
-                        "showStatus": function() {
-                            return this.status == 1 ? '有效' : (this.status == 0 ? '无效' : '删除');
-                        },
-                        "bold": function() {
-                            return function(text, render) {
-                                var status = render(text);
-                                if (status == '有效') {
-                                    return "<span class='label label-sm label-success'>有效</span>";
-                                } else if(status == '无效') {
-                                    return "<span class='label label-sm label-warning'>无效</span>";
-                                } else {
-                                    return "<span class='label'>删除</span>";
-                                }
-                            }
-                        }
-                    });
-                    $("#userList").html(rendered);
-                    bindUserClick();
-                    $.each(result.data.data, function(i, user) {
-                        userMap[user.id] = user;
-                    })
-                } else {
-                    $("#userList").html('');
-                }
-                //渲染分页信息
-                var pageSize = $("#pageSize").val();
-//                var pageNo = $("#userPage.pageNo").val() || 1;
-                var pageNo;
-                if(url.indexOf('pageNo=')<0){
-                    pageNo=1;
-                }else {
-                    var strurl=url.substr(url.indexOf('pageNo='));
-                    pageNo=strurl.substring(7,strurl.indexOf('&'));
-                }
-                renderPage(url, result.data.total, pageNo, pageSize, result.data.total > 0 ? result.data.data.length : 0, "userPage", renderUserListAndPage);
-            } else {
-                showMessage("获取部门下用户列表", result.msg, false);
-            }
         }
 
         $(".dept-add").click(function() {
@@ -465,6 +400,73 @@
                     }
                 }
             })
+        }
+
+        function loadUserList(deptId) {
+            var pageSize = $("#pageSize").val();
+            var url = "/sys/user/page.json?deptId=" + deptId;
+            //如果是空，则默认为1  注意#userPage .pageNo的空格
+            var pageNo = $("#userPage .pageNo").val() || 1;
+            $.ajax({
+                url : url,
+                data: {
+                    pageSize: pageSize,
+                    pageNo: pageNo
+                },
+                success: function (result) {
+                    renderUserListAndPage(result, url);
+                }
+            })
+        }
+
+        function renderUserListAndPage(result, url) {
+            if (result.ret) {
+                if (result.data.total > 0){
+                    var rendered = Mustache.render(userListTemplate, {
+                        //一般的返回结果是result.data，第二个data是PageResult这个类中的变量
+                        userList: result.data.data,
+                        "showDeptName": function() {
+                            return deptMap[this.deptId].name;
+                        },
+                        "showStatus": function() {
+                            return this.status == 1 ? '有效' : (this.status == 0 ? '无效' : '删除');
+                        },
+                        "bold": function() {
+                            return function(text, render) {
+                                var status = render(text);
+                                if (status == '有效') {
+                                    return "<span class='label label-sm label-success'>有效</span>";
+                                } else if(status == '无效') {
+                                    return "<span class='label label-sm label-warning'>无效</span>";
+                                } else {
+                                    return "<span class='label'>删除</span>";
+                                }
+                            }
+                        }
+                    });
+                    $("#userList").html(rendered);
+                    bindUserClick();
+                    $.each(result.data.data, function(i, user) {
+                        userMap[user.id] = user;
+                    })
+                } else {
+                    $("#userList").html('');
+                }
+                //渲染分页信息
+                var pageSize = $("#pageSize").val();
+                //注意#userPage .pageNo的空格
+                var pageNo = $("#userPage .pageNo").val() || 1;
+//                var pageNo;
+//                if(url.indexOf('pageNo=')<0){
+//                    pageNo=1;
+//                }else {
+//                    var strurl=url.substr(url.indexOf('pageNo='));
+//                    pageNo=strurl.substring(7,strurl.indexOf('&'));
+//                }
+                renderPage(url, result.data.total, pageNo, pageSize, result.data.total > 0 ? result.data.data.length : 0, "userPage", renderUserListAndPage);
+            } else {
+                showMessage("获取部门下用户列表", result.msg, false);
+            }
         }
 
         $(".user-add").click(function() {
