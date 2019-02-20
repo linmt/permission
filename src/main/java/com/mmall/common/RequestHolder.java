@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RequestHolder {
 
+    //用户登录后存放用户信息
     private static final ThreadLocal<SysUser> userHolder = new ThreadLocal<SysUser>();
 
     private static final ThreadLocal<HttpServletRequest> requestHolder = new ThreadLocal<HttpServletRequest>();

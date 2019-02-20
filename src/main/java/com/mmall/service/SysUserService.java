@@ -3,6 +3,7 @@ package com.mmall.service;
 import com.google.common.base.Preconditions;
 import com.mmall.beans.PageQuery;
 import com.mmall.beans.PageResult;
+import com.mmall.common.RequestHolder;
 import com.mmall.dao.SysUserMapper;
 import com.mmall.exception.ParamException;
 import com.mmall.model.SysUser;
@@ -38,9 +39,8 @@ public class SysUserService {
         String encryptedPassword = MD5Util.encrypt(password);
         SysUser user = SysUser.builder().username(param.getUsername()).telephone(param.getTelephone()).mail(param.getMail())
                 .password(encryptedPassword).deptId(param.getDeptId()).status(param.getStatus()).remark(param.getRemark()).build();
-//        user.setOperator(RequestHolder.getCurrentUser().getUsername());
 //        user.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
-        user.setOperator("system");
+        user.setOperator(RequestHolder.getCurrentUser().getUsername());
         user.setOperateIp("127.0.0.1");
         user.setOperateTime(new Date());
 
@@ -70,9 +70,8 @@ public class SysUserService {
         Preconditions.checkNotNull(before, "待更新的用户不存在");
         SysUser after = SysUser.builder().id(param.getId()).username(param.getUsername()).telephone(param.getTelephone()).mail(param.getMail())
                 .deptId(param.getDeptId()).status(param.getStatus()).remark(param.getRemark()).build();
-//        after.setOperator(RequestHolder.getCurrentUser().getUsername());
 //        after.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
-        after.setOperator("system-update");
+        after.setOperator(RequestHolder.getCurrentUser().getUsername());
         after.setOperateIp("127.0.0.1");
         after.setOperateTime(new Date());
         sysUserMapper.updateByPrimaryKeySelective(after);
