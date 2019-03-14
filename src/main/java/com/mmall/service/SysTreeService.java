@@ -3,11 +3,10 @@ package com.mmall.service;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.mmall.dao.SysAclMapper;
 import com.mmall.dao.SysAclModuleMapper;
 import com.mmall.dao.SysDeptMapper;
+import com.mmall.dto.AclModuleLevelDto;
 import com.mmall.dto.DeptLevelDto;
-import com.mmall.model.SysAcl;
 import com.mmall.model.SysAclModule;
 import com.mmall.model.SysDept;
 import com.mmall.util.LevelUtil;
@@ -17,18 +16,15 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class SysTreeService {
 
     @Resource
     private SysDeptMapper sysDeptMapper;
-//    @Resource
-//    private SysAclModuleMapper sysAclModuleMapper;
+    @Resource
+    private SysAclModuleMapper sysAclModuleMapper;
 //    @Resource
 //    private SysCoreService sysCoreService;
 //    @Resource
@@ -98,6 +94,52 @@ public class SysTreeService {
         }
     };
 
+    public List<AclModuleLevelDto> aclModuleTree() {
+        List<SysAclModule> aclModuleList = sysAclModuleMapper.getAllAclModule();
+        List<AclModuleLevelDto> dtoList = Lists.newArrayList();
+        for (SysAclModule aclModule : aclModuleList) {
+            dtoList.add(AclModuleLevelDto.adapt(aclModule));
+        }
+        return aclModuleListToTree(dtoList);
+    }
+
+    public List<AclModuleLevelDto> aclModuleListToTree(List<AclModuleLevelDto> dtoList) {
+        if (CollectionUtils.isEmpty(dtoList)) {
+            return Lists.newArrayList();
+        }
+        // level -> [aclmodule1, aclmodule2, ...] Map<String, List<Object>>
+        Multimap<String, AclModuleLevelDto> levelAclModuleMap = ArrayListMultimap.create();
+        List<AclModuleLevelDto> rootList = Lists.newArrayList();
+
+        for (AclModuleLevelDto dto : dtoList) {
+            levelAclModuleMap.put(dto.getLevel(), dto);
+            if (LevelUtil.ROOT.equals(dto.getLevel())) {
+                rootList.add(dto);
+            }
+        }
+        Collections.sort(rootList, aclModuleSeqComparator);
+        transformAclModuleTree(rootList, LevelUtil.ROOT, levelAclModuleMap);
+        return rootList;
+    }
+
+    public void transformAclModuleTree(List<AclModuleLevelDto> dtoList, String level, Multimap<String, AclModuleLevelDto> levelAclModuleMap) {
+        for (int i = 0; i < dtoList.size(); i++) {
+            AclModuleLevelDto dto = dtoList.get(i);
+            String nextLevel = LevelUtil.calculateLevel(level, dto.getId());
+            List<AclModuleLevelDto> tempList = (List<AclModuleLevelDto>) levelAclModuleMap.get(nextLevel);
+            if (CollectionUtils.isNotEmpty(tempList)) {
+                Collections.sort(tempList, aclModuleSeqComparator);
+                dto.setAclModuleList(tempList);
+                transformAclModuleTree(tempList, nextLevel, levelAclModuleMap);
+            }
+        }
+    }
+
+    public Comparator<AclModuleLevelDto> aclModuleSeqComparator = new Comparator<AclModuleLevelDto>() {
+        public int compare(AclModuleLevelDto o1, AclModuleLevelDto o2) {
+            return o1.getSeq() - o2.getSeq();
+        }
+    };
 //    public List<AclModuleLevelDto> userAclTree(int userId) {
 //        List<SysAcl> userAclList = sysCoreService.getUserAclList(userId);
 //        List<AclDto> aclDtoList = Lists.newArrayList();
@@ -165,52 +207,11 @@ public class SysTreeService {
 //        }
 //    }
 //
-//    public List<AclModuleLevelDto> aclModuleTree() {
-//        List<SysAclModule> aclModuleList = sysAclModuleMapper.getAllAclModule();
-//        List<AclModuleLevelDto> dtoList = Lists.newArrayList();
-//        for (SysAclModule aclModule : aclModuleList) {
-//            dtoList.add(AclModuleLevelDto.adapt(aclModule));
-//        }
-//        return aclModuleListToTree(dtoList);
-//    }
-//
-//    public List<AclModuleLevelDto> aclModuleListToTree(List<AclModuleLevelDto> dtoList) {
-//        if (CollectionUtils.isEmpty(dtoList)) {
-//            return Lists.newArrayList();
-//        }
-//        // level -> [aclmodule1, aclmodule2, ...] Map<String, List<Object>>
-//        Multimap<String, AclModuleLevelDto> levelAclModuleMap = ArrayListMultimap.create();
-//        List<AclModuleLevelDto> rootList = Lists.newArrayList();
-//
-//        for (AclModuleLevelDto dto : dtoList) {
-//            levelAclModuleMap.put(dto.getLevel(), dto);
-//            if (LevelUtil.ROOT.equals(dto.getLevel())) {
-//                rootList.add(dto);
-//            }
-//        }
-//        Collections.sort(rootList, aclModuleSeqComparator);
-//        transformAclModuleTree(rootList, LevelUtil.ROOT, levelAclModuleMap);
-//        return rootList;
-//    }
-//
-//    public void transformAclModuleTree(List<AclModuleLevelDto> dtoList, String level, Multimap<String, AclModuleLevelDto> levelAclModuleMap) {
-//        for (int i = 0; i < dtoList.size(); i++) {
-//            AclModuleLevelDto dto = dtoList.get(i);
-//            String nextLevel = LevelUtil.calculateLevel(level, dto.getId());
-//            List<AclModuleLevelDto> tempList = (List<AclModuleLevelDto>) levelAclModuleMap.get(nextLevel);
-//            if (CollectionUtils.isNotEmpty(tempList)) {
-//                Collections.sort(tempList, aclModuleSeqComparator);
-//                dto.setAclModuleList(tempList);
-//                transformAclModuleTree(tempList, nextLevel, levelAclModuleMap);
-//            }
-//        }
-//    }
 
-//    public Comparator<AclModuleLevelDto> aclModuleSeqComparator = new Comparator<AclModuleLevelDto>() {
-//        public int compare(AclModuleLevelDto o1, AclModuleLevelDto o2) {
-//            return o1.getSeq() - o2.getSeq();
-//        }
-//    };
+//
+
+//
+
 //
 //    public Comparator<AclDto> aclSeqComparator = new Comparator<AclDto>() {
 //        public int compare(AclDto o1, AclDto o2) {
