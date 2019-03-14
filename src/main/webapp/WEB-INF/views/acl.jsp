@@ -247,6 +247,7 @@
                                 }
                             },
                             "displayClass": function () {
+                                //为何不隐藏？？？
                                 return "";
                             }
                         });
@@ -269,7 +270,8 @@
                             aclModuleList: aclModule.aclModuleList,
                             "showDownAngle": function () {
                                 return function (text, render) {
-                                    return (this.aclModuleList && this.aclModuleList.length > 0) ? "" : "hidden";
+                                    return (aclModule.aclModuleList && aclModule.aclModuleList.length > 0) ? "" : "hidden";
+//                                    return (this.aclModuleList && this.aclModuleList.length > 0) ? "" : "hidden";
                                 }
                             },
                             "displayClass": function () {
@@ -283,45 +285,83 @@
             }
         }
 
+        $(".aclModule-add").click(function () {
+            $("#dialog-aclModule-form").dialog({
+                model: true,
+                title: "新增权限模块",
+                open: function(event, ui) {
+                    $(".ui-dialog-titlebar-close", $(this).parent()).hide();
+                    optionStr = "<option value=\"0\">-</option>";
+                    recursiveRenderAclModuleSelect(aclModuleList, 1);
+                    $("#aclModuleForm")[0].reset();
+                    $("#parentId").html(optionStr);
+                },
+                buttons : {
+                    "添加": function(e) {
+                        e.preventDefault();
+                        updateAclModule(true, function (data) {
+                            $("#dialog-aclModule-form").dialog("close");
+                        }, function (data) {
+                            showMessage("新增权限模块", data.msg, false);
+                        })
+                    },
+                    "取消": function () {
+                        $("#dialog-aclModule-form").dialog("close");
+                    }
+                }
+            });
+        });
+
+        function recursiveRenderAclModuleSelect(aclModuleList, level) {
+            level = level | 0;
+            if (aclModuleList && aclModuleList.length > 0) {
+                $(aclModuleList).each(function (i, aclModule) {
+                    aclModuleMap[aclModule.id] = aclModule;
+                    var blank = "";
+                    if (level > 1) {
+                        for(var j = 3; j <= level; j++) {
+                            blank += "..";
+                        }
+                        blank += "∟";
+                    }
+                    optionStr += Mustache.render("<option value='{{id}}'>{{name}}</option>", {id: aclModule.id, name: blank + aclModule.name});
+                    if (aclModule.aclModuleList && aclModule.aclModuleList.length > 0) {
+                        recursiveRenderAclModuleSelect(aclModule.aclModuleList, level + 1);
+                    }
+                });
+            }
+        }
+
+        function updateAclModule(isCreate, successCallback, failCallback) {
+            $.ajax({
+                url: isCreate ? "/sys/aclModule/save.json" : "/sys/aclModule/update.json",
+                data: $("#aclModuleForm").serializeArray(),
+                type: 'POST',
+                success: function(result) {
+                    if (result.ret) {
+                        loadAclModuleTree();
+                        if (successCallback) {
+                            successCallback(result);
+                        }
+                    } else {
+                        if (failCallback) {
+                            failCallback(result);
+                        }
+                    }
+                }
+            })
+        }
+
         function bindAclModuleClick() {
             $(".sub-aclModule").click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 $(this).parent().parent().parent().children().children(".aclModule-name").toggleClass("hidden");
                 if($(this).is(".fa-angle-double-down")) {
+                    //移除掉向下箭头，增加向上箭头
                     $(this).removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
                 } else{
                     $(this).removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
-                }
-            });
-
-            $(".aclModule-name").click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var aclModuleId = $(this).attr("data-id");
-                handleAclModuleSelected(aclModuleId);
-            });
-
-            $(".aclModule-delete").click(function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var aclModuleId = $(this).attr("data-id");
-                var aclModuleName = $(this).attr("data-name");
-                if (confirm("确定要删除权限模块[" + aclModuleName + "]吗?")) {
-                    $.ajax({
-                        url: "/sys/aclModule/delete.json",
-                        data: {
-                            id: aclModuleId
-                        },
-                        success: function (result) {
-                            if (result.ret) {
-                                showMessage("删除权限模块[" + aclModuleName + "]", "操作成功", true);
-                                loadAclModuleTree();
-                            } else {
-                                showMessage("删除权限模块[" + aclModuleName + "]", result.msg, false);
-                            }
-                        }
-                    });
                 }
             });
 
@@ -363,52 +403,68 @@
                     }
                 });
             });
-        }
 
-        $(".aclModule-add").click(function () {
-            $("#dialog-aclModule-form").dialog({
-                model: true,
-                title: "新增权限模块",
-                open: function(event, ui) {
-                    $(".ui-dialog-titlebar-close", $(this).parent()).hide();
-                    optionStr = "<option value=\"0\">-</option>";
-                    recursiveRenderAclModuleSelect(aclModuleList, 1);
-                    $("#aclModuleForm")[0].reset();
-                    $("#parentId").html(optionStr);
-                },
-                buttons : {
-                    "添加": function(e) {
-                        e.preventDefault();
-                        updateAclModule(true, function (data) {
-                            $("#dialog-aclModule-form").dialog("close");
-                        }, function (data) {
-                            showMessage("新增权限模块", data.msg, false);
-                        })
-                    },
-                    "取消": function () {
-                        $("#dialog-aclModule-form").dialog("close");
-                    }
+            $(".aclModule-name").click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var aclModuleId = $(this).attr("data-id");
+                handleAclModuleSelected(aclModuleId);
+            });
+
+            $(".aclModule-delete").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var aclModuleId = $(this).attr("data-id");
+                var aclModuleName = $(this).attr("data-name");
+                if (confirm("确定要删除权限模块[" + aclModuleName + "]吗?")) {
+                    $.ajax({
+                        url: "/sys/aclModule/delete.json",
+                        data: {
+                            id: aclModuleId
+                        },
+                        success: function (result) {
+                            if (result.ret) {
+                                showMessage("删除权限模块[" + aclModuleName + "]", "操作成功", true);
+                                loadAclModuleTree();
+                            } else {
+                                showMessage("删除权限模块[" + aclModuleName + "]", result.msg, false);
+                            }
+                        }
+                    });
                 }
             });
-        });
-        function updateAclModule(isCreate, successCallback, failCallback) {
-            $.ajax({
-                url: isCreate ? "/sys/aclModule/save.json" : "/sys/aclModule/update.json",
-                data: $("#aclModuleForm").serializeArray(),
-                type: 'POST',
-                success: function(result) {
-                    if (result.ret) {
-                        loadAclModuleTree();
-                        if (successCallback) {
-                            successCallback(result);
-                        }
-                    } else {
-                        if (failCallback) {
-                            failCallback(result);
-                        }
-                    }
-                }
-            })
+
+
+        }
+
+        function handleAclModuleSelected(aclModuleId) {
+            if (lastClickAclModuleId != -1) {
+                var lastAclModule = $("#aclModule_" + lastClickAclModuleId + " .dd2-content:first");
+                lastAclModule.removeClass("btn-yellow");
+                lastAclModule.removeClass("no-hover");
+            }
+            var currentAclModule = $("#aclModule_" + aclModuleId + " .dd2-content:first");
+            currentAclModule.addClass("btn-yellow");
+            currentAclModule.addClass("no-hover");
+            lastClickAclModuleId = aclModuleId;
+            loadAclList(aclModuleId);
+        }
+
+        function loadAclList(aclModuleId) {
+            console.log("loadAclList,id:"+aclModuleId);
+//            var pageSize = $("#pageSize").val();
+//            var url = "/sys/acl/page.json?aclModuleId=" + aclModuleId;
+//            var pageNo = $("#aclPage .pageNo").val() || 1;
+//            $.ajax({
+//                url : url,
+//                data: {
+//                    pageSize: pageSize,
+//                    pageNo: pageNo
+//                },
+//                success: function (result) {
+//                    renderAclListAndPage(result, url);
+//                }
+//            })
         }
 
         function updateAcl(isCreate, successCallback, failCallback) {
@@ -431,54 +487,11 @@
             })
         }
 
-        function recursiveRenderAclModuleSelect(aclModuleList, level) {
-            level = level | 0;
-            if (aclModuleList && aclModuleList.length > 0) {
-                $(aclModuleList).each(function (i, aclModule) {
-                    aclModuleMap[aclModule.id] = aclModule;
-                    var blank = "";
-                    if (level > 1) {
-                        for(var j = 3; j <= level; j++) {
-                            blank += "..";
-                        }
-                        blank += "∟";
-                    }
-                    optionStr += Mustache.render("<option value='{{id}}'>{{name}}</option>", {id: aclModule.id, name: blank + aclModule.name});
-                    if (aclModule.aclModuleList && aclModule.aclModuleList.length > 0) {
-                        recursiveRenderAclModuleSelect(aclModule.aclModuleList, level + 1);
-                    }
-                });
-            }
-        }
 
-        function handleAclModuleSelected(aclModuleId) {
-            if (lastClickAclModuleId != -1) {
-                var lastAclModule = $("#aclModule_" + lastClickAclModuleId + " .dd2-content:first");
-                lastAclModule.removeClass("btn-yellow");
-                lastAclModule.removeClass("no-hover");
-            }
-            var currentAclModule = $("#aclModule_" + aclModuleId + " .dd2-content:first");
-            currentAclModule.addClass("btn-yellow");
-            currentAclModule.addClass("no-hover");
-            lastClickAclModuleId = aclModuleId;
-            loadAclList(aclModuleId);
-        }
 
-        function loadAclList(aclModuleId) {
-            var pageSize = $("#pageSize").val();
-            var url = "/sys/acl/page.json?aclModuleId=" + aclModuleId;
-            var pageNo = $("#aclPage .pageNo").val() || 1;
-            $.ajax({
-                url : url,
-                data: {
-                    pageSize: pageSize,
-                    pageNo: pageNo
-                },
-                success: function (result) {
-                    renderAclListAndPage(result, url);
-                }
-            })
-        }
+
+
+
 
         function renderAclListAndPage(result, url) {
             if(result.ret) {
