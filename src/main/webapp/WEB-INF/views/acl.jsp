@@ -411,30 +411,28 @@
                 handleAclModuleSelected(aclModuleId);
             });
 
-            $(".aclModule-delete").click(function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var aclModuleId = $(this).attr("data-id");
-                var aclModuleName = $(this).attr("data-name");
-                if (confirm("确定要删除权限模块[" + aclModuleName + "]吗?")) {
-                    $.ajax({
-                        url: "/sys/aclModule/delete.json",
-                        data: {
-                            id: aclModuleId
-                        },
-                        success: function (result) {
-                            if (result.ret) {
-                                showMessage("删除权限模块[" + aclModuleName + "]", "操作成功", true);
-                                loadAclModuleTree();
-                            } else {
-                                showMessage("删除权限模块[" + aclModuleName + "]", result.msg, false);
-                            }
-                        }
-                    });
-                }
-            });
-
-
+//            $(".aclModule-delete").click(function (e) {
+//                e.preventDefault();
+//                e.stopPropagation();
+//                var aclModuleId = $(this).attr("data-id");
+//                var aclModuleName = $(this).attr("data-name");
+//                if (confirm("确定要删除权限模块[" + aclModuleName + "]吗?")) {
+//                    $.ajax({
+//                        url: "/sys/aclModule/delete.json",
+//                        data: {
+//                            id: aclModuleId
+//                        },
+//                        success: function (result) {
+//                            if (result.ret) {
+//                                showMessage("删除权限模块[" + aclModuleName + "]", "操作成功", true);
+//                                loadAclModuleTree();
+//                            } else {
+//                                showMessage("删除权限模块[" + aclModuleName + "]", result.msg, false);
+//                            }
+//                        }
+//                    });
+//                }
+//            });
         }
 
         function handleAclModuleSelected(aclModuleId) {
@@ -451,47 +449,21 @@
         }
 
         function loadAclList(aclModuleId) {
-            console.log("loadAclList,id:"+aclModuleId);
-//            var pageSize = $("#pageSize").val();
-//            var url = "/sys/acl/page.json?aclModuleId=" + aclModuleId;
-//            var pageNo = $("#aclPage .pageNo").val() || 1;
-//            $.ajax({
-//                url : url,
-//                data: {
-//                    pageSize: pageSize,
-//                    pageNo: pageNo
-//                },
-//                success: function (result) {
-//                    renderAclListAndPage(result, url);
-//                }
-//            })
-        }
-
-        function updateAcl(isCreate, successCallback, failCallback) {
+//            console.log("loadAclList,id:"+aclModuleId);
+            var pageSize = $("#pageSize").val();
+            var url = "/sys/acl/page.json?aclModuleId=" + aclModuleId;
+            var pageNo = $("#aclPage .pageNo").val() || 1;
             $.ajax({
-                url: isCreate ? "/sys/acl/save.json" : "/sys/acl/update.json",
-                data: $("#aclForm").serializeArray(),
-                type: 'POST',
-                success: function(result) {
-                    if (result.ret) {
-                        loadAclList(lastClickAclModuleId);
-                        if (successCallback) {
-                            successCallback(result);
-                        }
-                    } else {
-                        if (failCallback) {
-                            failCallback(result);
-                        }
-                    }
+                url : url,
+                data: {
+                    pageSize: pageSize,
+                    pageNo: pageNo
+                },
+                success: function (result) {
+                    renderAclListAndPage(result, url);
                 }
             })
         }
-
-
-
-
-
-
 
         function renderAclListAndPage(result, url) {
             if(result.ret) {
@@ -537,24 +509,6 @@
         }
 
         function bindAclClick() {
-            $(".acl-role").click(function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var aclId = $(this).attr("data-id");
-                $.ajax({
-                    url: "/sys/acl/acls.json",
-                    data: {
-                        aclId: aclId
-                    },
-                    success: function(result) {
-                        if (result.ret) {
-                            console.log(result)
-                        } else {
-                            showMessage("获取权限点分配的用户和角色", result.msg, false);
-                        }
-                    }
-                })
-            });
             $(".acl-edit").click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -595,6 +549,25 @@
                     }
                 });
             })
+
+//            $(".acl-role").click(function (e) {
+//                e.preventDefault();
+//                e.stopPropagation();
+//                var aclId = $(this).attr("data-id");
+//                $.ajax({
+//                    url: "/sys/acl/acls.json",
+//                    data: {
+//                        aclId: aclId
+//                    },
+//                    success: function(result) {
+//                        if (result.ret) {
+//                            console.log(result)
+//                        } else {
+//                            showMessage("获取权限点分配的用户和角色", result.msg, false);
+//                        }
+//                    }
+//                })
+//            });
         }
 
         $(".acl-add").click(function() {
@@ -623,6 +596,26 @@
                 }
             });
         })
+
+        function updateAcl(isCreate, successCallback, failCallback) {
+            $.ajax({
+                url: isCreate ? "/sys/acl/save.json" : "/sys/acl/update.json",
+                data: $("#aclForm").serializeArray(),
+                type: 'POST',
+                success: function(result) {
+                    if (result.ret) {
+                        loadAclList(lastClickAclModuleId);
+                        if (successCallback) {
+                            successCallback(result);
+                        }
+                    } else {
+                        if (failCallback) {
+                            failCallback(result);
+                        }
+                    }
+                }
+            })
+        }
     })
 </script>
 </body>
