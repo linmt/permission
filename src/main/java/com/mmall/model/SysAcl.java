@@ -2,6 +2,7 @@ package com.mmall.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -9,6 +10,8 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+//当我们做equals或者hashcode判断时候，只取决于其id是否相同
+@EqualsAndHashCode(of = {"id"})
 public class SysAcl {
     private Integer id;
 

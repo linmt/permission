@@ -291,7 +291,20 @@
                 var deptId = $(this).attr("data-id");
                 var deptName = $(this).attr("data-name");
                 if (confirm("确定要删除部门[" + deptName + "]吗?")) {
-
+                    $.ajax({
+                        url: "/sys/dept/delete.json",
+                        data: {
+                            id: deptId
+                        },
+                        success: function (result) {
+                            if (result.ret) {
+                                showMessage("删除部门[" + deptName + "]", "操作成功", true);
+                                loadDeptTree();
+                            } else {
+                                showMessage("删除部门[" + deptName + "]", result.msg, false);
+                            }
+                        }
+                    });
                 }
             });
 
@@ -559,6 +572,24 @@
                         }
                     }
                 });
+            });
+            $(".user-acl").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var userId = $(this).attr("data-id");
+                $.ajax({
+                    url: "/sys/user/acls.json",
+                    data: {
+                        userId: userId
+                    },
+                    success: function(result) {
+                        if (result.ret) {
+                            console.log(result)
+                        } else {
+                            showMessage("获取用户权限数据", result.msg, false);
+                        }
+                    }
+                })
             });
         }
     })

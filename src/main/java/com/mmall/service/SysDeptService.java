@@ -3,6 +3,7 @@ package com.mmall.service;
 import com.google.common.base.Preconditions;
 import com.mmall.common.RequestHolder;
 import com.mmall.dao.SysDeptMapper;
+import com.mmall.dao.SysUserMapper;
 import com.mmall.exception.ParamException;
 import com.mmall.model.SysDept;
 import com.mmall.param.DeptParam;
@@ -22,8 +23,8 @@ public class SysDeptService {
 
     @Resource
     private SysDeptMapper sysDeptMapper;
-//    @Resource
-//    private SysUserMapper sysUserMapper;
+    @Resource
+    private SysUserMapper sysUserMapper;
 //    @Resource
 //    private SysLogService sysLogService;
 
@@ -36,7 +37,6 @@ public class SysDeptService {
                 .seq(param.getSeq()).remark(param.getRemark()).build();
 
         dept.setLevel(LevelUtil.calculateLevel(getLevel(param.getParentId()), param.getParentId()));
-//        dept.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         dept.setOperator(RequestHolder.getCurrentUser().getUsername());
         dept.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         dept.setOperateTime(new Date());
@@ -70,7 +70,6 @@ public class SysDeptService {
         SysDept after = SysDept.builder().id(param.getId()).name(param.getName()).parentId(param.getParentId())
                 .seq(param.getSeq()).remark(param.getRemark()).build();
         after.setLevel(LevelUtil.calculateLevel(getLevel(param.getParentId()), param.getParentId()));
-//        after.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         after.setOperator(RequestHolder.getCurrentUser().getUsername());
         after.setOperateIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         after.setOperateTime(new Date());
@@ -99,15 +98,15 @@ public class SysDeptService {
         sysDeptMapper.updateByPrimaryKey(after);
     }
 
-//    public void delete(int deptId) {
-//        SysDept dept = sysDeptMapper.selectByPrimaryKey(deptId);
-//        Preconditions.checkNotNull(dept, "待删除的部门不存在，无法删除");
-//        if (sysDeptMapper.countByParentId(dept.getId()) > 0) {
-//            throw new ParamException("当前部门下面有子部门，无法删除");
-//        }
-//        if(sysUserMapper.countByDeptId(dept.getId()) > 0) {
-//            throw new ParamException("当前部门下面有用户，无法删除");
-//        }
-//        sysDeptMapper.deleteByPrimaryKey(deptId);
-//    }
+    public void delete(int deptId) {
+        SysDept dept = sysDeptMapper.selectByPrimaryKey(deptId);
+        Preconditions.checkNotNull(dept, "待删除的部门不存在，无法删除");
+        if (sysDeptMapper.countByParentId(dept.getId()) > 0) {
+            throw new ParamException("当前部门下面有子部门，无法删除");
+        }
+        if(sysUserMapper.countByDeptId(dept.getId()) > 0) {
+            throw new ParamException("当前部门下面有用户，无法删除");
+        }
+        sysDeptMapper.deleteByPrimaryKey(deptId);
+    }
 }

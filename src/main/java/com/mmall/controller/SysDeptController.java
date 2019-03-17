@@ -51,10 +51,10 @@ public class SysDeptController {
         return new ModelAndView("dept");
     }
 
-//    @RequestMapping("/delete.json")
-//    @ResponseBody
-//    public JsonData delete(@RequestParam("id") int id) {
-//        sysDeptService.delete(id);
-//        return JsonData.success();
-//    }
+    @RequestMapping("/delete.json")
+    @ResponseBody
+    public JsonData delete(@RequestParam("id") int id) {
+        sysDeptService.delete(id);
+        return JsonData.success();
+    }
 }

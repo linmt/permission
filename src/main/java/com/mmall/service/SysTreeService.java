@@ -17,10 +17,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,6 +96,7 @@ public class SysTreeService {
         }
     };
 
+    //生成权限模块dto树
     public List<AclModuleLevelDto> aclModuleTree() {
         List<SysAclModule> aclModuleList = sysAclModuleMapper.getAllAclModule();
         List<AclModuleLevelDto> dtoList = Lists.newArrayList();
@@ -160,9 +158,11 @@ public class SysTreeService {
         List<SysAcl> allAclList = sysAclMapper.getAll();
         for (SysAcl acl : allAclList) {
             AclDto dto = AclDto.adapt(acl);
+            //判断当前用户是否包含该权限点
             if (userAclIdSet.contains(acl.getId())) {
                 dto.setHasAcl(true);
             }
+            //判断当前角色是否包含该权限点
             if (roleAclIdSet.contains(acl.getId())) {
                 dto.setChecked(true);
             }
@@ -187,6 +187,8 @@ public class SysTreeService {
         return aclModuleLevelList;
     }
 
+    //权限模块dto---权限点   权限模块id----权限点dto
+    //把权限点dto放到权限模块dto和子权限模块dto
     public void bindAclsWithOrder(List<AclModuleLevelDto> aclModuleLevelList, Multimap<Integer, AclDto> moduleIdAclMap) {
         if (CollectionUtils.isEmpty(aclModuleLevelList)) {
             return;
@@ -207,15 +209,15 @@ public class SysTreeService {
         }
     };
 
-//    public List<AclModuleLevelDto> userAclTree(int userId) {
-//        List<SysAcl> userAclList = sysCoreService.getUserAclList(userId);
-//        List<AclDto> aclDtoList = Lists.newArrayList();
-//        for (SysAcl acl : userAclList) {
-//            AclDto dto = AclDto.adapt(acl);
-//            dto.setHasAcl(true);
-//            dto.setChecked(true);
-//            aclDtoList.add(dto);
-//        }
-//        return aclListToTree(aclDtoList);
-//    }
+    public List<AclModuleLevelDto> userAclTree(int userId) {
+        List<SysAcl> userAclList = sysCoreService.getUserAclList(userId);
+        List<AclDto> aclDtoList = Lists.newArrayList();
+        for (SysAcl acl : userAclList) {
+            AclDto dto = AclDto.adapt(acl);
+            dto.setHasAcl(true);
+            dto.setChecked(true);
+            aclDtoList.add(dto);
+        }
+        return aclListToTree(aclDtoList);
+    }
 }

@@ -30,9 +30,11 @@ public class SysCoreService {
     }
 
     public List<SysAcl> getUserAclList(int userId) {
+        //如果是超级管理员，直接返回所有权限点
         if (isSuperAdmin()) {
             return sysAclMapper.getAll();
         }
+        //查找用户的RoleId
         List<Integer> userRoleIdList = sysRoleUserMapper.getRoleIdListByUserId(userId);
         if (CollectionUtils.isEmpty(userRoleIdList)) {
             return Lists.newArrayList();

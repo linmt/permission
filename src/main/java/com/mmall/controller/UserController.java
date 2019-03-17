@@ -51,8 +51,11 @@ public class UserController {
             request.getSession().setAttribute("user", sysUser);
             if (StringUtils.isNotBlank(ret)) {
                 response.sendRedirect(ret);
+                //报异常的原因是重复转发或者重定向了请求，如果有多个转发或者重定向，需要在每个转发或者重定向请求之后加上return语句(最后一个请求转发或者重定向不需要加return)
+                return;
             } else {
                 response.sendRedirect("/admin/index.page"); //TODO
+                return;
             }
         }
 
