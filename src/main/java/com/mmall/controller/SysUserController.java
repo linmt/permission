@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -27,11 +28,6 @@ public class SysUserController {
     private SysTreeService sysTreeService;
     @Resource
     private SysRoleService sysRoleService;
-
-//    @RequestMapping("/noAuth.page")
-//    public ModelAndView noAuth() {
-//        return new ModelAndView("noAuth");
-//    }
 
     @RequestMapping("/save.json")
     @ResponseBody
@@ -62,5 +58,10 @@ public class SysUserController {
         map.put("acls", sysTreeService.userAclTree(userId));
         map.put("roles", sysRoleService.getRoleListByUserId(userId));
         return JsonData.success(map);
+    }
+
+    @RequestMapping("/noAuth.page")
+    public ModelAndView noAuth() {
+        return new ModelAndView("noAuth");
     }
 }
