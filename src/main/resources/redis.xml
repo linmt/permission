@@ -6,8 +6,10 @@
 
     <context:property-placeholder location="classpath:redis.properties" />
 
+    <!--连接池-->
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig" />
 
+    <!--使用客户端的连接池  单例-->
     <bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool" scope="singleton" >
         <constructor-arg index="0" ref="jedisPoolConfig" />
         <constructor-arg index="1">
@@ -20,5 +22,4 @@
             </list>
         </constructor-arg>
     </bean>
-
 </beans>

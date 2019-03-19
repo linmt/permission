@@ -56,4 +56,5 @@
         <property name="dbType" value="mysql" />
     </bean>
 
+    <import resource="redis.xml" />
 </beans>
